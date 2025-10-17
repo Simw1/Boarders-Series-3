@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boarders Series 3 - Music Submission</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #2a5298 0%, #1e3a6d 100%); color: white; padding: 30px; text-align: center; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        .content { padding: 30px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 2px solid #dee2e6; flex-wrap: wrap; }
+        .tab { padding: 15px 25px; cursor: pointer; border: none; background: none; color: #6c757d; font-size: 16px; font-weight: 500; transition: all 0.3s; border-bottom: 3px solid transparent; }
+        .tab:hover { color: #2a5298; }
+        .tab.active { color: #2a5298; border-bottom-color: #2a5298; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .form-group { margin-bottom: 25px; }
+        .form-group label { display: block; font-weight: 600; color: #2a5298; margin-bottom: 8px; font-size: 14px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px; transition: border-color 0.3s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #2a5298; }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .required::after { content: " *"; color: #dc3545; }
+        .btn { padding: 12px 30px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: #2a5298; color: white; }
+        .btn-primary:hover { background: #1e3a6d; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(42, 82, 152, 0.3); }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #545b62; }
+        .track-entry { background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #2a5298; }
+        .track-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .track-number { background: #2a5298; color: white; padding: 5px 15px; border-radius: 20px; font-weight: 600; }
+        .remove-track { color: #dc3545; cursor: pointer; font-size: 20px; }
+        .add-track-btn { width: 100%; padding: 15px; border: 2px dashed #2a5298; background: none; color: #2a5298; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.3s; }
+        .add-track-btn:hover { background: #f8f9fa; }
+        .contributor-entry { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .actions { display: flex; gap: 15px; justify-content: center; margin-top: 30px; flex-wrap: wrap; }
+        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .alert-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .alert-danger { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .alert-info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .alert-warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        .info-box { background: #f8f9fa; border-left: 4px solid #2a5298; padding: 20px; margin-bottom: 25px; border-radius: 8px; }
+        .info-box h3 { color: #2a5298; margin-bottom: 15px; }
+        .info-box p { line-height: 1.6; margin-bottom: 10px; color: #495057; }
+        .info-box ul { margin-left: 20px; line-height: 1.8; color: #495057; }
+        .info-box a { color: #2a5298; text-decoration: none; font-weight: 600; }
+        .info-box a:hover { text-decoration: underline; }
+        .checklist { display: grid; gap: 15px; margin-top: 20px; }
+        .checklist-item { display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 2px solid #e9ecef; }
+        .checklist-item input[type="checkbox"] { width: 24px; height: 24px; cursor: pointer; }
+        .checklist-item label { flex: 1; cursor: pointer; font-weight: 500; }
+        .projects-list { display: grid; gap: 15px; }
+        .project-card { background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #2a5298; cursor: pointer; transition: all 0.3s; }
+        .project-card:hover { transform: translateX(5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .project-card h3 { color: #2a5298; margin-bottom: 10px; }
+        .project-meta { display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px; color: #6c757d; }
+        @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } .tabs { overflow-x: auto; } .tab { white-space: nowrap; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Boarders Series 3 - Music Submission</h1>
+            <p>University of Westminster | 2025/26</p>
+        </div>
+        
+        <div class="content">
+            <div id="mainContent">
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('new')">📝 New Submission</button>
+                    <button class="tab" onclick="showTab('projects')">📋 View Submissions</button>
+                </div>
+                
+                <div id="newTab" class="tab-content active">
+                    <form id="metadataForm">
+                        <!-- Project Info Section -->
+                        <div class="section">
+                            <h2 style="color: #2a5298; margin-bottom: 20px;">1. Track Information - Songwriter/Composer, Artist Name</h2>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="required">Track Title</label>
+                                    <input type="text" id="trackTitle" placeholder="e.g., Bad Ass" required>
+                                    <small style="color: #6c757d; font-size: 12px;">Track titles must consist of words, not just codes</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="required">Student Name</label>
+                                    <input type="text" id="studentName" placeholder="Your full name" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="required">Songwriter/Composer, Artist Name</label>
+                                    <input type="text" id="composerName" placeholder="Name you wish to be known by on soundtrack" required>
+                                    <small style="color: #6c757d; font-size: 12px;">This is how you'll be credited</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="required">Submission Date</label>
+                                    <input type="date" id="submissionDate" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="required">Genre</label>
+                                    <input type="text" id="genre" placeholder="e.g., house, grime, Afrobeat" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="required">Tempo (BPM)</label>
+                                    <input type="text" id="tempo" placeholder="e.g., 85 BPM, 140 BPM" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Track Version</label>
+                                <input type="text" id="trackVersion" placeholder="e.g., V1, V2, V3" required>
+                                <small style="color: #6c757d; font-size: 12px;">Version number for this track</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Membership Requirements -->
+                        <div class="section" style="margin-top: 40px;">
+                            <h2 style="color: #2a5298; margin-bottom: 20px;">2. Membership Requirements</h2>
+                            
+                            <div class="info-box">
+                                <h3>Required by End of October</h3>
+                                <p><strong>All students need to be signed up by the end of the month (October) and must have signed up prior to submitting music.</strong></p>
+                                <p>Each writer must carry out the following activities in order to take part:</p>
+                                <ul>
+                                    <li>Enter into a Composers Agreement with Boarders. For this, you will need to seek independent legal advice before signing and evidence this (see point below: Join MU)</li>
+                                    <li><strong>Join MU:</strong> <a href="https://musiciansunion.org.uk/" target="_blank">https://musiciansunion.org.uk/</a> for the purpose of seeking Independent Legal Advice in relation to the Composers Agreement</li>
+                                    <li><strong>Join PRS:</strong> <a href="https://www.prsformusic.com/join" target="_blank">https://www.prsformusic.com/join</a> for the purpose of receiving royalties</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="checklist">
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="muMembership" required>
+                                    <label for="muMembership">I have joined the Musicians' Union (MU)</label>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="prsMembership" required>
+                                    <label for="prsMembership">I have joined PRS for Music or MCPS</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Track Details Section -->
+                        <div class="section" style="margin-top: 40px;">
+                            <h2 style="color: #2a5298; margin-bottom: 20px;">3. Track Details - Complete Appropriate Boxes</h2>
+                            <div id="tracksContainer"></div>
+                            <button type="button" class="add-track-btn" onclick="addTrack()">+ Add Additional Track</button>
+                        </div>
+                        
+                        <!-- Contributors Section -->
+                        <div class="section" style="margin-top: 40px;">
+                            <h2 style="color: #2a5298; margin-bottom: 20px;">4. Writing Splits</h2>
+                            <p style="color: #6c757d; margin-bottom: 20px;">All song splits must be agreed prior to or upon submission</p>
+                            <div id="contributorsContainer"></div>
+                            <button type="button" class="add-track-btn" onclick="addContributor()">+ Add Contributor</button>
+                        </div>
+                        
+                        <!-- Assets & Deliverables -->
+                        <div class="section" style="margin-top: 40px;">
+                            <h2 style="color: #2a5298; margin-bottom: 20px;">5. Assets & Delivery</h2>
+                            
+                            <div class="info-box">
+                                <h3>Track Labelling Format</h3>
+                                <p><strong>All tracks must be clearly labelled in the following format:</strong></p>
+                                <ul>
+                                    <li><strong>Format:</strong> "Track Title + Student Name + Version Number"</li>
+                                    <li><strong>Example:</strong> <code>Bad Ass_Mykaell Riley_V1</code></li>
+                                    <li>Track titles must consist of words, not just codes</li>
+                                    <li><strong>Tracks submitted without this labelling format will not be accepted</strong></li>
+                                </ul>
+                                
+                                <h3 style="margin-top: 20px;">Delivery Requirements</h3>
+                                <ul>
+                                    <li>Students must decide on a composer/artist name by which they wish to be known on the soundtrack at the beginning to avoid confusion later</li>
+                                    <li>Tracks must be delivered in <strong>WAV format</strong> and include vocal version, instrumental version and all stems</li>
+                                    <li>Songs should carry a Genre (e.g., house, grime, Afrobeat) and a tempo (e.g., Dubstep 140 BPM, hip-hop 85–95 BPM)</li>
+                                    <li>If composers score to picture, they must compose to the correct timecodes to match the picture</li>
+                                </ul>
+                                
+                                <h3 style="margin-top: 20px;">Storing Music Files</h3>
+                                <p><strong>Upload your files to:</strong></p>
+                                <p><a href="https://drive.google.com/drive/u/0/folders/1IJkWEji0RmF3YhNdZsaADrMDie65U94s" target="_blank">Google Drive Folder</a></p>
+                                <p style="font-size: 13px; margin-top: 10px;">We have an online account so that all music can be kept in one place before it's ingested into the Avid and dumped in bins. Mykaell will use it to upload the students' music, and the editor can use it to upload the edits. The edit assistants will then have one organised space where they can access everything.</p>
+                            </div>
+                            
+                            <h3 style="color: #495057; margin: 30px 0 15px;">I confirm I have submitted the following items in accordance with the project brief:</h3>
+                            
+                            <div class="checklist">
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="assetMasterWAV">
+                                    <label for="assetMasterWAV">Master WAV (44.1kHz, 24-bit)</label>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="assetVocalVersion">
+                                    <label for="assetVocalVersion">Vocal Version WAV</label>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="assetInstrumental">
+                                    <label for="assetInstrumental">Instrumental Version WAV</label>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="assetStems">
+                                    <label for="assetStems">All Stems</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="actions">
+                            <button type="button" class="btn btn-secondary" onclick="saveDraft()">💾 Save Draft</button>
+                            <button type="button" class="btn btn-success" onclick="submitToSheets()">✅ Submit</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="projectsTab" class="tab-content">
+                    <div class="projects-list" id="projectsList">
+                        <div class="alert alert-info">Click "View Submissions" to load previous submissions</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+        let config = { webAppUrl: WEB_APP_URL };
+        let trackCount = 0;
+        let contributorCount = 0;
+        
+        window.onload = function() {
+            if (!config.webAppUrl || config.webAppUrl === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+                showAlert('warning', '⚠️ Please configure the WEB_APP_URL. See APPS_SCRIPT_SETUP.md');
+            }
+            loadDraft();
+            addTrack();
+            addContributor();
+        };
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            if (tabName === 'projects') loadProjects();
+        }
+        
+        function addTrack() {
+            trackCount++;
+            document.getElementById('tracksContainer').insertAdjacentHTML('beforeend', `
+                <div class="track-entry" id="track${trackCount}">
+                    <div class="track-header">
+                        <span class="track-number">Track ${trackCount}</span>
+                        <span class="remove-track" onclick="removeTrack(${trackCount})">×</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Composer(s)</label>
+                            <textarea name="trackComposers${trackCount}" placeholder="List all composers (separate with commas)"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Songwriter(s)</label>
+                            <textarea name="trackSongwriters${trackCount}" placeholder="List all songwriters (separate with commas)"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Featured Artist (Lead Vocals)</label>
+                            <input type="text" name="trackFeatures${trackCount}" placeholder="Separate with commas">
+                        </div>
+                        <div class="form-group">
+                            <label>Session Singers/Session Musicians</label>
+                            <input type="text" name="trackSessionArtists${trackCount}" placeholder="Separate with commas">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">Duration</label>
+                            <input type="text" name="trackDuration${trackCount}" placeholder="mm:ss" pattern="[0-9]{1,2}:[0-9]{2}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">Explicit Content</label>
+                            <select name="trackExplicit${trackCount}" required>
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>ISRC Code</label>
+                            <input type="text" name="trackISRC${trackCount}" placeholder="e.g., US-S1Z-20-12345">
+                        </div>
+                        <div class="form-group">
+                            <label>Producers</label>
+                            <textarea name="trackProducers${trackCount}" placeholder="List all producers (separate with commas)"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Timecode Start Point</label>
+                            <input type="text" name="trackTimecodeStart${trackCount}" placeholder="e.g., 00:30:15">
+                        </div>
+                        <div class="form-group">
+                            <label>Timecode Notes</label>
+                            <textarea name="trackTimecodeNotes${trackCount}" placeholder="Additional timecode information"></textarea>
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+        
+        function removeTrack(id) { if (confirm('Remove this track?')) document.getElementById('track' + id).remove(); }
+        
+        function addContributor() {
+            contributorCount++;
+            document.getElementById('contributorsContainer').insertAdjacentHTML('beforeend', `
+                <div class="contributor-entry" id="contributor${contributorCount}">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                        <strong>Contributor ${contributorCount}</strong>
+                        <span class="remove-track" onclick="removeContributor(${contributorCount})">×</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Role</label>
+                            <select name="contributorRole${contributorCount}">
+                                <option value="">Select role...</option>
+                                <option value="composer">Composer</option>
+                                <option value="songwriter">Songwriter</option>
+                                <option value="producer">Producer</option>
+                                <option value="featured">Featured Artist</option>
+                                <option value="performer">Performer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" name="contributorName${contributorCount}">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Split %</label>
+                            <input type="number" name="contributorSplit${contributorCount}" min="0" max="100" placeholder="Must be agreed">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="contributorEmail${contributorCount}">
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+        
+        function removeContributor(id) { if (confirm('Remove this contributor?')) document.getElementById('contributor' + id).remove(); }
+        
+        function collectFormData() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                trackTitle: document.getElementById('trackTitle').value,
+                studentName: document.getElementById('studentName').value,
+                composerName: document.getElementById('composerName').value,
+                submissionDate: document.getElementById('submissionDate').value,
+                genre: document.getElementById('genre').value,
+                tempo: document.getElementById('tempo').value,
+                trackVersion: document.getElementById('trackVersion').value,
+                muMembership: document.getElementById('muMembership').checked,
+                prsMembership: document.getElementById('prsMembership').checked,
+                tracks: [],
+                contributors: [],
+                assets: {
+                    masterWAV: document.getElementById('assetMasterWAV').checked,
+                    vocalVersion: document.getElementById('assetVocalVersion').checked,
+                    instrumental: document.getElementById('assetInstrumental').checked,
+                    stems: document.getElementById('assetStems').checked
+                }
+            };
+            
+            for (let i = 1; i <= trackCount; i++) {
+                const trackEl = document.getElementById('track' + i);
+                if (trackEl) {
+                    data.tracks.push({
+                        composers: trackEl.querySelector('[name="trackComposers' + i + '"]').value,
+                        songwriters: trackEl.querySelector('[name="trackSongwriters' + i + '"]').value,
+                        features: trackEl.querySelector('[name="trackFeatures' + i + '"]').value,
+                        sessionArtists: trackEl.querySelector('[name="trackSessionArtists' + i + '"]').value,
+                        duration: trackEl.querySelector('[name="trackDuration' + i + '"]').value,
+                        explicit: trackEl.querySelector('[name="trackExplicit' + i + '"]').value,
+                        isrc: trackEl.querySelector('[name="trackISRC' + i + '"]').value,
+                        producers: trackEl.querySelector('[name="trackProducers' + i + '"]').value,
+                        timecodeStart: trackEl.querySelector('[name="trackTimecodeStart' + i + '"]').value,
+                        timecodeNotes: trackEl.querySelector('[name="trackTimecodeNotes' + i + '"]').value
+                    });
+                }
+            }
+            
+            for (let i = 1; i <= contributorCount; i++) {
+                const contribEl = document.getElementById('contributor' + i);
+                if (contribEl) {
+                    data.contributors.push({
+                        role: contribEl.querySelector('[name="contributorRole' + i + '"]').value,
+                        name: contribEl.querySelector('[name="contributorName' + i + '"]').value,
+                        split: contribEl.querySelector('[name="contributorSplit' + i + '"]').value,
+                        email: contribEl.querySelector('[name="contributorEmail' + i + '"]').value
+                    });
+                }
+            }
+            
+            return data;
+        }
+        
+        function saveDraft() {
+            localStorage.setItem('boardersDraft', JSON.stringify(collectFormData()));
+            showAlert('success', '💾 Draft saved locally!');
+        }
+        
+        function loadDraft() {
+            const draft = localStorage.getItem('boardersDraft');
+            if (draft) console.log('Draft available');
+        }
+        
+        async function submitToSheets() {
+            if (!config.webAppUrl || config.webAppUrl === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+                alert('⚠️ Configure WEB_APP_URL first. See APPS_SCRIPT_SETUP.md');
+                return;
+            }
+            
+            const data = collectFormData();
+            
+            // Validation
+            if (!data.trackTitle || !data.studentName || !data.composerName) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            if (!data.muMembership || !data.prsMembership) {
+                alert('You must confirm MU and PRS/MCPS membership before submitting.\n\nReminder: All students must be signed up by the end of October and must have signed up prior to submitting music.');
+                return;
+            }
+            
+            showAlert('info', '📤 Submitting...');
+            
+            try {
+                const payload = {
+                    project: [
+                        data.timestamp,
+                        data.trackTitle,
+                        data.studentName,
+                        data.composerName,
+                        data.submissionDate,
+                        data.genre,
+                        data.tempo,
+                        data.trackVersion,
+                        data.muMembership ? 'Yes' : 'No',
+                        data.prsMembership ? 'Yes' : 'No',
+                        JSON.stringify(data.assets)
+                    ],
+                    tracks: data.tracks.map((track, index) => [
+                        data.trackTitle,
+                        index + 1,
+                        track.composers,
+                        track.songwriters,
+                        track.features,
+                        track.sessionArtists,
+                        track.duration,
+                        track.explicit,
+                        track.isrc,
+                        track.producers,
+                        track.timecodeStart,
+                        track.timecodeNotes
+                    ]),
+                    contributors: data.contributors.map(contrib => [
+                        data.trackTitle,
+                        contrib.role,
+                        contrib.name,
+                        contrib.split,
+                        contrib.email
+                    ])
+                };
+                
+                console.log('Submitting to:', config.webAppUrl);
+                const response = await fetch(config.webAppUrl, {method: 'POST', body: JSON.stringify(payload)});
+                const result = await response.text();
+                console.log('Response:', result);
+                
+                let jsonResult;
+                try { jsonResult = JSON.parse(result); } catch (e) { console.log('Assuming success'); }
+                
+                if (jsonResult && jsonResult.success === false) throw new Error(jsonResult.error || 'Failed');
+                
+                showAlert('success', '✅ Submission successful!');
+                
+                if (confirm('Submission successful! 🎉\n\nClear form?')) {
+                    document.getElementById('metadataForm').reset();
+                    localStorage.removeItem('boardersDraft');
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error: ' + error.message + '\n\nCheck console (F12) for details');
+            }
+        }
+        
+        async function loadProjects() {
+            if (!config.webAppUrl || config.webAppUrl === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+                document.getElementById('projectsList').innerHTML = '<div class="alert alert-warning">Configure WEB_APP_URL first</div>';
+                return;
+            }
+            
+            document.getElementById('projectsList').innerHTML = '<div class="alert alert-info">Loading...</div>';
+            
+            try {
+                const response = await fetch(config.webAppUrl);
+                if (!response.ok) throw new Error('Failed to load');
+                const result = await response.json();
+                if (!result.success) throw new Error(result.error || 'Unknown error');
+                const rows = result.data || [];
+                
+                if (rows.length === 0) {
+                    document.getElementById('projectsList').innerHTML = '<div class="alert alert-info">No submissions yet</div>';
+                    return;
+                }
+                
+                let html = '';
+                rows.forEach(row => {
+                    html += `
+                        <div class="project-card">
+                            <h3>${row['Track Title'] || 'Untitled'}</h3>
+                            <div class="project-meta">
+                                <span>👤 ${row['Student Name'] || 'Unknown'}</span>
+                                <span>🎤 ${row['Composer Name'] || 'Unknown'}</span>
+                                <span>📅 ${row['Submission Date'] || 'No Date'}</span>
+                                <span>🎵 ${row['Genre'] || 'No Genre'} @ ${row['Tempo'] || 'Unknown BPM'}</span>
+                                <span>📝 ${row['Track Version'] || 'No Version'}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('projectsList').innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('projectsList').innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            }
+        }
+        
+        function showAlert(type, message) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alert.style.position = 'fixed';
+            alert.style.top = '20px';
+            alert.style.right = '20px';
+            alert.style.zIndex = '2000';
+            alert.style.minWidth = '300px';
+            alert.style.maxWidth = '500px';
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+    </script>
+</body>
+</html>
