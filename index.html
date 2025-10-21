@@ -154,6 +154,12 @@
                                     <label for="prsMembership">I have joined PRS for Music or MCPS</label>
                                 </div>
                             </div>
+                            
+                            <div class="form-group" style="margin-top: 20px;">
+                                <label class="required">CAE Number (PRS)</label>
+                                <input type="text" id="caeNumber" placeholder="Enter your CAE/IPI number" required>
+                                <small style="color: #6c757d; font-size: 12px;">Your unique CAE/IPI number from PRS</small>
+                            </div>
                         </div>
                         
                         <!-- Track Details Section -->
@@ -195,7 +201,7 @@
                                 
                                 <h3 style="margin-top: 20px;">Storing Music Files</h3>
                                 <p><strong>Upload your files to:</strong></p>
-                                <p><a href="https://drive.google.com/drive/u/0/folders/1IJkWEji0RmF3YhNdZsaADrMDie65U94s" target="_blank">Google Drive Folder</a></p>
+                                <p><a href="https://drive.google.com/drive/folders/11Q3EXl4x_G52vWykoOJ96cK5Aq1seLO6" target="_blank">Google Drive Folder</a></p>
                                 <p style="font-size: 13px; margin-top: 10px;">We have an online account so that all music can be kept in one place before it's ingested into the Avid and dumped in bins. Mykaell will use it to upload the students' music, and the editor can use it to upload the edits. The edit assistants will then have one organised space where they can access everything.</p>
                             </div>
                             
@@ -238,7 +244,7 @@
     </div>
 
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwK6kQtPDjXL3Wq7X5glsCJHEgU9MX7R3P0kILBVJj5kLr2BWySu3prSKcZtg7hPoGnAQ/exec';
+        const WEB_APP_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
         let config = { webAppUrl: WEB_APP_URL };
         let trackCount = 0;
         let contributorCount = 0;
@@ -280,19 +286,25 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Featured Artist (Lead Vocals)</label>
-                            <input type="text" name="trackFeatures${trackCount}" placeholder="Separate with commas">
+                            <label>Lyricist(s)</label>
+                            <textarea name="trackLyricists${trackCount}" placeholder="List all lyricists (separate with commas)"></textarea>
                         </div>
                         <div class="form-group">
-                            <label>Session Singers/Session Musicians</label>
-                            <input type="text" name="trackSessionArtists${trackCount}" placeholder="Separate with commas">
+                            <label>Featured Artist (Lead Vocals)</label>
+                            <input type="text" name="trackFeatures${trackCount}" placeholder="Separate with commas">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
+                            <label>Session Singers/Session Musicians</label>
+                            <input type="text" name="trackSessionArtists${trackCount}" placeholder="Separate with commas">
+                        </div>
+                        <div class="form-group">
                             <label class="required">Duration</label>
                             <input type="text" name="trackDuration${trackCount}" placeholder="mm:ss" pattern="[0-9]{1,2}:[0-9]{2}" required>
                         </div>
+                    </div>
+                    <div class="form-row">
                         <div class="form-group">
                             <label class="required">Explicit Content</label>
                             <select name="trackExplicit${trackCount}" required>
@@ -300,16 +312,14 @@
                                 <option value="yes">Yes</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
                             <label>ISRC Code</label>
                             <input type="text" name="trackISRC${trackCount}" placeholder="e.g., US-S1Z-20-12345">
                         </div>
-                        <div class="form-group">
-                            <label>Producers</label>
-                            <textarea name="trackProducers${trackCount}" placeholder="List all producers (separate with commas)"></textarea>
-                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Producers</label>
+                        <textarea name="trackProducers${trackCount}" placeholder="List all producers (separate with commas)"></textarea>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
@@ -380,6 +390,7 @@
                 trackVersion: document.getElementById('trackVersion').value,
                 muMembership: document.getElementById('muMembership').checked,
                 prsMembership: document.getElementById('prsMembership').checked,
+                caeNumber: document.getElementById('caeNumber').value,
                 tracks: [],
                 contributors: [],
                 assets: {
@@ -396,6 +407,7 @@
                     data.tracks.push({
                         composers: trackEl.querySelector('[name="trackComposers' + i + '"]').value,
                         songwriters: trackEl.querySelector('[name="trackSongwriters' + i + '"]').value,
+                        lyricists: trackEl.querySelector('[name="trackLyricists' + i + '"]').value,
                         features: trackEl.querySelector('[name="trackFeatures' + i + '"]').value,
                         sessionArtists: trackEl.querySelector('[name="trackSessionArtists' + i + '"]').value,
                         duration: trackEl.querySelector('[name="trackDuration' + i + '"]').value,
@@ -452,6 +464,11 @@
                 return;
             }
             
+            if (!data.caeNumber) {
+                alert('Please enter your CAE number');
+                return;
+            }
+            
             showAlert('info', '📤 Submitting...');
             
             try {
@@ -467,6 +484,7 @@
                         data.trackVersion,
                         data.muMembership ? 'Yes' : 'No',
                         data.prsMembership ? 'Yes' : 'No',
+                        data.caeNumber,
                         JSON.stringify(data.assets)
                     ],
                     tracks: data.tracks.map((track, index) => [
@@ -474,6 +492,7 @@
                         index + 1,
                         track.composers,
                         track.songwriters,
+                        track.lyricists,
                         track.features,
                         track.sessionArtists,
                         track.duration,
