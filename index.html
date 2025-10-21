@@ -244,7 +244,7 @@
     </div>
 
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby8ZPnnfR0SrC-rtjXDzTTES6G74DWPnzHIuCFxA_59D44v6WaMGVX1qw0XNGrYqKZyww/exec';
+        const WEB_APP_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
         let config = { webAppUrl: WEB_APP_URL };
         let trackCount = 0;
         let contributorCount = 0;
@@ -485,7 +485,13 @@
                         data.muMembership ? 'Yes' : 'No',
                         data.prsMembership ? 'Yes' : 'No',
                         data.caeNumber,
-                        JSON.stringify(data.assets)
+                        // Format assets as readable list
+                        [
+                            data.assets.masterWAV ? 'Master WAV' : null,
+                            data.assets.vocalVersion ? 'Vocal Version' : null,
+                            data.assets.instrumental ? 'Instrumental' : null,
+                            data.assets.stems ? 'Stems' : null
+                        ].filter(Boolean).join(', ') || 'None'
                     ],
                     tracks: data.tracks.map((track, index) => [
                         data.trackTitle,
