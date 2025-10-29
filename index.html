@@ -274,6 +274,10 @@
                         <span class="track-number">Track ${trackCount}</span>
                         <span class="remove-track" onclick="removeTrack(${trackCount})">×</span>
                     </div>
+                    <div class="form-group">
+                        <label class="required">Track Title</label>
+                        <input type="text" name="trackTitle${trackCount}" placeholder="Enter track title" required onchange="updateContributorTrackOptions()">
+                    </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label>Composer(s)</label>
@@ -395,12 +399,15 @@
         }
         
         function getTrackOptions() {
-            const trackTitle = document.getElementById('trackTitle').value || 'Track';
             let options = '<option value="all">All Tracks</option>';
             
             for (let i = 1; i <= trackCount; i++) {
-                if (document.getElementById('track' + i)) {
-                    options += `<option value="track${i}">Track ${i}: ${trackTitle}</option>`;
+                const trackEl = document.getElementById('track' + i);
+                if (trackEl) {
+                    const titleInput = trackEl.querySelector('[name="trackTitle' + i + '"]');
+                    const trackTitle = titleInput ? titleInput.value : '';
+                    const displayTitle = trackTitle || 'Untitled';
+                    options += `<option value="track${i}">Track ${i}: ${displayTitle}</option>`;
                 }
             }
             
@@ -445,6 +452,7 @@
                 const trackEl = document.getElementById('track' + i);
                 if (trackEl) {
                     data.tracks.push({
+                        title: trackEl.querySelector('[name="trackTitle' + i + '"]').value,
                         composers: trackEl.querySelector('[name="trackComposers' + i + '"]').value,
                         songwriters: trackEl.querySelector('[name="trackSongwriters' + i + '"]').value,
                         lyricists: trackEl.querySelector('[name="trackLyricists' + i + '"]').value,
@@ -536,7 +544,7 @@
                         ].filter(Boolean).join(', ') || 'None'
                     ],
                     tracks: data.tracks.map((track, index) => [
-                        data.trackTitle,
+                        track.title || data.trackTitle,
                         index + 1,
                         track.composers,
                         track.songwriters,
