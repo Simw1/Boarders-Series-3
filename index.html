@@ -460,8 +460,25 @@
             for (let i = 1; i <= contributorCount; i++) {
                 const contribEl = document.getElementById('contributor' + i);
                 if (contribEl) {
+                    const trackSelect = contribEl.querySelector('[name="contributorTrack' + i + '"]');
+                    const selectedTrackValue = trackSelect.value;
+                    
+                    // Get the actual track title based on selection
+                    let trackTitle = '';
+                    if (selectedTrackValue === 'all') {
+                        trackTitle = 'All Tracks';
+                    } else {
+                        // Extract track number from value like "track1"
+                        const trackNum = selectedTrackValue.replace('track', '');
+                        const trackEl = document.getElementById('track' + trackNum);
+                        if (trackEl) {
+                            const titleInput = trackEl.querySelector('[name="trackTitle' + trackNum + '"]');
+                            trackTitle = titleInput ? titleInput.value : selectedTrackValue;
+                        }
+                    }
+                    
                     data.contributors.push({
-                        track: contribEl.querySelector('[name="contributorTrack' + i + '"]').value,
+                        track: trackTitle,
                         role: contribEl.querySelector('[name="contributorRole' + i + '"]').value,
                         name: contribEl.querySelector('[name="contributorName' + i + '"]').value,
                         split: contribEl.querySelector('[name="contributorSplit' + i + '"]').value,
@@ -546,13 +563,15 @@
                         track.timecodeStart,
                         track.timecodeNotes
                     ]),
-                    contributors: data.contributors.map(contrib => [
-                        data.studentName,
-                        contrib.track,
-                        contrib.role,
-                        contrib.name,
-                        contrib.split,
-                        contrib.email
+                    contributors: data.contributors.filter(contrib => 
+                        contrib.name && contrib.name.trim() !== ''
+                    ).map(contrib => [
+                        data.studentName || '',
+                        contrib.track || '',
+                        contrib.role || '',
+                        contrib.name || '',
+                        contrib.split || '',
+                        contrib.email || ''
                     ])
                 };
                 
