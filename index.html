@@ -287,12 +287,16 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label>Lyricist(s)</label>
-                            <textarea name="trackLyricists${trackCount}" placeholder="List all lyricists (separate with commas)"></textarea>
+                            <textarea name="trackLyricists${trackCount}" placeholder="List all lyricists (separate with commas)" style="min-height: 60px;"></textarea>
                         </div>
                         <div class="form-group">
                             <label>Featured Artist (Lead Vocals)</label>
                             <input type="text" name="trackFeatures${trackCount}" placeholder="Separate with commas">
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Lyrics/Words</label>
+                        <textarea name="trackLyrics${trackCount}" placeholder="Enter full lyrics here (optional - leave blank for instrumentals)" style="min-height: 200px;"></textarea>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
@@ -333,12 +337,19 @@
                     </div>
                 </div>
             `);
+            updateContributorTrackOptions();
         }
         
-        function removeTrack(id) { if (confirm('Remove this track?')) document.getElementById('track' + id).remove(); }
+        function removeTrack(id) { 
+            if (confirm('Remove this track?')) {
+                document.getElementById('track' + id).remove();
+                updateContributorTrackOptions();
+            }
+        }
         
         function addContributor() {
             contributorCount++;
+            const trackOptions = getTrackOptions();
             document.getElementById('contributorsContainer').insertAdjacentHTML('beforeend', `
                 <div class="contributor-entry" id="contributor${contributorCount}">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
@@ -347,33 +358,62 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
+                            <label>Track</label>
+                            <select name="contributorTrack${contributorCount}" class="contributor-track-select">
+                                ${trackOptions}
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label>Role</label>
                             <select name="contributorRole${contributorCount}">
                                 <option value="">Select role...</option>
                                 <option value="composer">Composer</option>
                                 <option value="songwriter">Songwriter</option>
+                                <option value="lyricist">Lyricist</option>
                                 <option value="producer">Producer</option>
                                 <option value="featured">Featured Artist</option>
                                 <option value="performer">Performer</option>
                             </select>
                         </div>
+                    </div>
+                    <div class="form-row">
                         <div class="form-group">
                             <label>Name</label>
                             <input type="text" name="contributorName${contributorCount}">
                         </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
                             <label>Split %</label>
                             <input type="number" name="contributorSplit${contributorCount}" min="0" max="100" placeholder="Must be agreed">
                         </div>
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" name="contributorEmail${contributorCount}">
-                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="contributorEmail${contributorCount}">
                     </div>
                 </div>
             `);
+        }
+        
+        function getTrackOptions() {
+            const trackTitle = document.getElementById('trackTitle').value || 'Track';
+            let options = '<option value="all">All Tracks</option>';
+            
+            for (let i = 1; i <= trackCount; i++) {
+                if (document.getElementById('track' + i)) {
+                    options += `<option value="track${i}">Track ${i}: ${trackTitle}</option>`;
+                }
+            }
+            
+            return options;
+        }
+        
+        function updateContributorTrackOptions() {
+            const trackOptions = getTrackOptions();
+            document.querySelectorAll('.contributor-track-select').forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = trackOptions;
+                if (currentValue) select.value = currentValue;
+            });
         }
         
         function removeContributor(id) { if (confirm('Remove this contributor?')) document.getElementById('contributor' + id).remove(); }
@@ -408,6 +448,7 @@
                         composers: trackEl.querySelector('[name="trackComposers' + i + '"]').value,
                         songwriters: trackEl.querySelector('[name="trackSongwriters' + i + '"]').value,
                         lyricists: trackEl.querySelector('[name="trackLyricists' + i + '"]').value,
+                        lyrics: trackEl.querySelector('[name="trackLyrics' + i + '"]').value,
                         features: trackEl.querySelector('[name="trackFeatures' + i + '"]').value,
                         sessionArtists: trackEl.querySelector('[name="trackSessionArtists' + i + '"]').value,
                         duration: trackEl.querySelector('[name="trackDuration' + i + '"]').value,
@@ -424,6 +465,7 @@
                 const contribEl = document.getElementById('contributor' + i);
                 if (contribEl) {
                     data.contributors.push({
+                        track: contribEl.querySelector('[name="contributorTrack' + i + '"]').value,
                         role: contribEl.querySelector('[name="contributorRole' + i + '"]').value,
                         name: contribEl.querySelector('[name="contributorName' + i + '"]').value,
                         split: contribEl.querySelector('[name="contributorSplit' + i + '"]').value,
@@ -499,6 +541,7 @@
                         track.composers,
                         track.songwriters,
                         track.lyricists,
+                        track.lyrics,
                         track.features,
                         track.sessionArtists,
                         track.duration,
@@ -510,6 +553,7 @@
                     ]),
                     contributors: data.contributors.map(contrib => [
                         data.trackTitle,
+                        contrib.track,
                         contrib.role,
                         contrib.name,
                         contrib.split,
