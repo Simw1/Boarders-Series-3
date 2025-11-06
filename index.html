@@ -202,6 +202,7 @@
                         </div>
                         
                         <div class="actions">
+                            <button type="button" class="btn btn-secondary" onclick="clearDraft()">🗑️ Clear Draft</button>
                             <button type="button" class="btn btn-secondary" onclick="saveDraft()">💾 Save Draft</button>
                             <button type="button" class="btn btn-success" onclick="submitToSheets()">✅ Submit</button>
                         </div>
@@ -227,9 +228,23 @@
             if (!config.webAppUrl || config.webAppUrl === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
                 showAlert('warning', '⚠️ Please configure the WEB_APP_URL. See APPS_SCRIPT_SETUP.md');
             }
-            loadDraft();
-            addTrack();
-            addContributor();
+            
+            // Check if draft exists
+            const hasDraft = localStorage.getItem('boardersDraft');
+            
+            if (hasDraft) {
+                // Try to load draft (which will recreate tracks and contributors)
+                const draftLoaded = loadDraft();
+                // If draft wasn't loaded (user declined or error), add defaults
+                if (!draftLoaded) {
+                    addTrack();
+                    addContributor();
+                }
+            } else {
+                // No draft, add default track and contributor
+                addTrack();
+                addContributor();
+            }
         };
         
         function showTab(tabName) {
@@ -497,7 +512,106 @@
         
         function loadDraft() {
             const draft = localStorage.getItem('boardersDraft');
-            if (draft) console.log('Draft available');
+            if (!draft) return false;
+            
+            if (confirm('📋 Found a saved draft from your previous session.\n\nWould you like to restore it?')) {
+                try {
+                    const data = JSON.parse(draft);
+                    
+                    // Restore basic fields
+                    if (data.studentName) document.getElementById('studentName').value = data.studentName;
+                    if (data.composerName) document.getElementById('composerName').value = data.composerName;
+                    if (data.submissionDate) document.getElementById('submissionDate').value = data.submissionDate;
+                    if (data.caeNumber) document.getElementById('caeNumber').value = data.caeNumber;
+                    
+                    // Restore checkboxes
+                    if (data.muMembership) document.getElementById('muMembership').checked = true;
+                    if (data.prsMembership) document.getElementById('prsMembership').checked = true;
+                    
+                    // Restore assets
+                    if (data.assets) {
+                        if (data.assets.masterWAV) document.getElementById('assetMasterWAV').checked = true;
+                        if (data.assets.vocalVersion) document.getElementById('assetVocalVersion').checked = true;
+                        if (data.assets.instrumental) document.getElementById('assetInstrumental').checked = true;
+                        if (data.assets.stems) document.getElementById('assetStems').checked = true;
+                    }
+                    
+                    // Clear existing tracks and contributors (except the initial ones)
+                    document.getElementById('tracksContainer').innerHTML = '';
+                    document.getElementById('contributorsContainer').innerHTML = '';
+                    trackCount = 0;
+                    contributorCount = 0;
+                    
+                    // Restore tracks
+                    if (data.tracks && data.tracks.length > 0) {
+                        data.tracks.forEach((track, index) => {
+                            addTrack();
+                            const trackEl = document.getElementById('track' + trackCount);
+                            if (trackEl && track) {
+                                if (track.title) trackEl.querySelector('[name="trackTitle' + trackCount + '"]').value = track.title;
+                                if (track.genre) trackEl.querySelector('[name="trackGenre' + trackCount + '"]').value = track.genre;
+                                if (track.tempo) trackEl.querySelector('[name="trackTempo' + trackCount + '"]').value = track.tempo;
+                                if (track.version) trackEl.querySelector('[name="trackVersion' + trackCount + '"]').value = track.version;
+                                if (track.composers) trackEl.querySelector('[name="trackComposers' + trackCount + '"]').value = track.composers;
+                                if (track.songwriters) trackEl.querySelector('[name="trackSongwriters' + trackCount + '"]').value = track.songwriters;
+                                if (track.lyricists) trackEl.querySelector('[name="trackLyricists' + trackCount + '"]').value = track.lyricists;
+                                if (track.lyrics) trackEl.querySelector('[name="trackLyrics' + trackCount + '"]').value = track.lyrics;
+                                if (track.features) trackEl.querySelector('[name="trackFeatures' + trackCount + '"]').value = track.features;
+                                if (track.sessionArtists) trackEl.querySelector('[name="trackSessionArtists' + trackCount + '"]').value = track.sessionArtists;
+                                if (track.duration) trackEl.querySelector('[name="trackDuration' + trackCount + '"]').value = track.duration;
+                                if (track.explicit) trackEl.querySelector('[name="trackExplicit' + trackCount + '"]').value = track.explicit;
+                                if (track.isrc) trackEl.querySelector('[name="trackISRC' + trackCount + '"]').value = track.isrc;
+                                if (track.producers) trackEl.querySelector('[name="trackProducers' + trackCount + '"]').value = track.producers;
+                                if (track.timecodeStart) trackEl.querySelector('[name="trackTimecodeStart' + trackCount + '"]').value = track.timecodeStart;
+                                if (track.timecodeNotes) trackEl.querySelector('[name="trackTimecodeNotes' + trackCount + '"]').value = track.timecodeNotes;
+                            }
+                        });
+                    } else {
+                        // Add at least one track if none exist
+                        addTrack();
+                    }
+                    
+                    // Update track options before restoring contributors
+                    updateContributorTrackOptions();
+                    
+                    // Restore contributors
+                    if (data.contributors && data.contributors.length > 0) {
+                        data.contributors.forEach((contrib, index) => {
+                            addContributor();
+                            const contribEl = document.getElementById('contributor' + contributorCount);
+                            if (contribEl && contrib) {
+                                if (contrib.track) contribEl.querySelector('[name="contributorTrack' + contributorCount + '"]').value = contrib.track;
+                                if (contrib.role) contribEl.querySelector('[name="contributorRole' + contributorCount + '"]').value = contrib.role;
+                                if (contrib.name) contribEl.querySelector('[name="contributorName' + contributorCount + '"]').value = contrib.name;
+                                if (contrib.split) contribEl.querySelector('[name="contributorSplit' + contributorCount + '"]').value = contrib.split;
+                                if (contrib.email) contribEl.querySelector('[name="contributorEmail' + contributorCount + '"]').value = contrib.email;
+                            }
+                        });
+                    } else {
+                        // Add at least one contributor if none exist
+                        addContributor();
+                    }
+                    
+                    showAlert('success', '✅ Draft restored successfully!');
+                    return true;
+                } catch (error) {
+                    console.error('Error loading draft:', error);
+                    showAlert('danger', '❌ Error loading draft. Starting fresh.');
+                    localStorage.removeItem('boardersDraft');
+                    return false;
+                }
+            } else {
+                // User declined to restore draft
+                localStorage.removeItem('boardersDraft');
+                return false;
+            }
+        }
+        
+        function clearDraft() {
+            if (confirm('Are you sure you want to delete your saved draft?')) {
+                localStorage.removeItem('boardersDraft');
+                showAlert('success', '🗑️ Draft deleted');
+            }
         }
         
         async function submitToSheets() {
